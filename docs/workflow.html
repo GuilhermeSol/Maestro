@@ -1,0 +1,296 @@
+<title>Maestro Workflow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: main pipeline across the top, each stage's detail flow hangs below it. */
+:root {
+  --bg: #f6f5f1;
+  --panel: #ffffff;
+  --ink: #1b2330;
+  --muted: #5d6675;
+  --line: #b9bfc9;
+  --accent: #0b6e6e;
+  --accent-soft: #d8ecea;
+  --gate: #c2410c;
+  --loop: #8a3ffc;
+  --red: #c0392b;
+  --sec: #2563eb;
+  --ok: #2e7d32;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161d; --panel: #1a212b; --ink: #e8ecf2; --muted: #9aa5b5; --line: #3a4453;
+    --accent: #4fc3bd; --accent-soft: #17302f; --gate: #f08a52; --loop: #b794f6;
+    --red: #ff7b72; --sec: #7aa7ff; --ok: #6fcf97; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161d; --panel: #1a212b; --ink: #e8ecf2; --muted: #9aa5b5; --line: #3a4453;
+  --accent: #4fc3bd; --accent-soft: #17302f; --gate: #f08a52; --loop: #b794f6;
+  --red: #ff7b72; --sec: #7aa7ff; --ok: #6fcf97; color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-sans);
+  padding-block: 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-size: 26px; font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.sub { color: var(--muted); font-size: 15px; margin: 4px 0 0; max-width: 70ch; }
+.scroll { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+svg { display: block; min-width: 1000px; width: 100%; height: auto; }
+
+.node { fill: var(--panel); stroke: var(--accent); stroke-width: 1.8; }
+.node-title { fill: var(--ink); font: 600 15px var(--font-sans); }
+.node-role { fill: var(--muted); font: 400 12px var(--font-sans); }
+.note { fill: var(--muted); font: 400 12px var(--font-sans); }
+
+.step { fill: var(--panel); stroke: var(--line); stroke-width: 1.4; }
+.step.red { stroke: var(--red); }
+.step.sec { stroke: var(--sec); }
+.step.ok { stroke: var(--ok); fill: var(--panel); stroke-width: 1.8; }
+.st { fill: var(--ink); font: 400 12px var(--font-sans); }
+.st.s11 { font-size: 11px; }
+.dec { fill: var(--panel); stroke: var(--gate); stroke-width: 1.5; }
+.dec.sec { stroke: var(--sec); }
+.dec.ok { stroke: var(--ok); }
+.lbl { fill: var(--muted); font: 500 11px var(--font-mono); }
+
+.flow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.arrow { stroke: var(--line); stroke-width: 2; fill: none; }
+.chip { fill: var(--accent-soft); stroke: none; }
+.chip-text { fill: var(--accent); font: 500 12px var(--font-mono); }
+.cmd { fill: var(--ink); font: 500 13px var(--font-mono); }
+.cmd-box { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+.gate { fill: var(--panel); stroke: var(--gate); stroke-width: 2; }
+.gate-mark { stroke: var(--gate); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.loop { stroke: var(--loop); stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+.loop-text { fill: var(--loop); font: 500 12px var(--font-sans); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: 14px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--gate); }
+.sw-loop { width: 22px; height: 0; border-top: 2px dashed var(--loop); }
+.sw-box { width: 18px; height: 12px; border-radius: 3px; border: 1.6px solid var(--line); }
+.sw-box.red { border-color: var(--red); }
+.sw-box.sec { border-color: var(--sec); }
+.sw-box.ok { border-color: var(--ok); }
+.sw-box.node { border-color: var(--accent); }
+</style>
+
+<main>
+  <header>
+    <h1>Maestro: from a Jira ticket to a merged pull request</h1>
+    <p class="sub">Seven agents run in order. You approve every step. If review or security finds problems, the work goes back to the Developer.</p>
+  </header>
+
+  <div class="scroll">
+  <svg viewBox="0 0 1170 756" role="img" aria-label="Maestro pipeline of seven agents with the TDD loop, the security checks and the PR Routine monitors drawn as sub-flows under their stages.">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M1 1 L9 5 L1 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- start command -->
+    <rect class="cmd-box" x="20" y="18" width="190" height="34" rx="6"/>
+    <text class="cmd" x="115" y="40" text-anchor="middle">/maestro TICKET-ID</text>
+    <path class="arrow" d="M87 52 V138" marker-end="url(#ah)" style="stroke:var(--accent)"/>
+
+    <!-- main row -->
+    <g>
+      <rect class="node" x="20" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="87" y="172" text-anchor="middle">1 · BA</text>
+      <text class="node-role" x="87" y="194" text-anchor="middle">reads the ticket</text>
+
+      <rect class="node" x="186" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="253" y="172" text-anchor="middle">2 · Architect</text>
+      <text class="node-role" x="253" y="194" text-anchor="middle">plans the work</text>
+
+      <rect class="node" x="352" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="419" y="172" text-anchor="middle">3 · Developer</text>
+      <text class="node-role" x="419" y="194" text-anchor="middle">writes the code</text>
+
+      <rect class="node" x="518" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="585" y="172" text-anchor="middle">4 · Code Review</text>
+      <text class="node-role" x="585" y="194" text-anchor="middle">checks the diff</text>
+
+      <rect class="node" x="684" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="751" y="172" text-anchor="middle">5 · Security</text>
+      <text class="node-role" x="751" y="194" text-anchor="middle">scans for risks</text>
+
+      <rect class="node" x="850" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="917" y="172" text-anchor="middle">6 · PR Manager</text>
+      <text class="node-role" x="917" y="194" text-anchor="middle">opens the PR</text>
+
+      <rect class="node" x="1016" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="1083" y="172" text-anchor="middle">7 · PR Routine</text>
+      <text class="node-role" x="1083" y="194" text-anchor="middle">tracks it to merge</text>
+    </g>
+
+    <!-- Jira status chips -->
+    <rect class="chip" x="364" y="100" width="110" height="24" rx="12"/>
+    <text class="chip-text" x="419" y="116" text-anchor="middle">→ In Progress</text>
+    <rect class="chip" x="862" y="100" width="110" height="24" rx="12"/>
+    <text class="chip-text" x="917" y="116" text-anchor="middle">→ In Review</text>
+    <rect class="chip" x="1028" y="100" width="110" height="24" rx="12"/>
+    <text class="chip-text" x="1083" y="116" text-anchor="middle">→ QA</text>
+    <path class="arrow" d="M419 124 V140" style="stroke-dasharray:3 3"/>
+    <path class="arrow" d="M917 124 V140" style="stroke-dasharray:3 3"/>
+    <path class="arrow" d="M1083 124 V140" style="stroke-dasharray:3 3"/>
+
+    <!-- arrows between nodes with approval gates -->
+    <g>
+      <path class="arrow" d="M154 182 H168"/><path class="arrow" d="M172 182 H186" marker-end="url(#ah)"/>
+      <circle class="gate" cx="170" cy="182" r="9"/><path class="gate-mark" d="M166 182 L169 185 L174 179"/>
+      <path class="arrow" d="M320 182 H334"/><path class="arrow" d="M338 182 H352" marker-end="url(#ah)"/>
+      <circle class="gate" cx="336" cy="182" r="9"/><path class="gate-mark" d="M332 182 L335 185 L340 179"/>
+      <path class="arrow" d="M486 182 H500"/><path class="arrow" d="M504 182 H518" marker-end="url(#ah)"/>
+      <circle class="gate" cx="502" cy="182" r="9"/><path class="gate-mark" d="M498 182 L501 185 L506 179"/>
+      <path class="arrow" d="M652 182 H666"/><path class="arrow" d="M670 182 H684" marker-end="url(#ah)"/>
+      <circle class="gate" cx="668" cy="182" r="9"/><path class="gate-mark" d="M664 182 L667 185 L672 179"/>
+      <path class="arrow" d="M818 182 H832"/><path class="arrow" d="M836 182 H850" marker-end="url(#ah)"/>
+      <circle class="gate" cx="834" cy="182" r="9"/><path class="gate-mark" d="M830 182 L833 185 L838 179"/>
+      <path class="arrow" d="M984 182 H998"/><path class="arrow" d="M1002 182 H1016" marker-end="url(#ah)"/>
+      <circle class="gate" cx="1000" cy="182" r="9"/><path class="gate-mark" d="M996 182 L999 185 L1004 179"/>
+    </g>
+
+    <!-- loop-back (nested so the lines never cross) -->
+    <path class="loop" d="M585 224 V248 H470 V226" marker-end="url(#ah)"/>
+    <path class="loop" d="M751 224 V264 H455 V226" marker-end="url(#ah)"/>
+    <text class="loop-text" x="592" y="240">issues</text>
+    <text class="loop-text" x="500" y="288">issues found: back to the Developer</text>
+    <text class="loop-text" x="500" y="305">then review runs again</text>
+
+    <!-- BA, Review, PR Manager notes -->
+    <text class="note" x="87" y="254" text-anchor="middle">Acceptance criteria</text>
+    <text class="note" x="87" y="271" text-anchor="middle">and test cases</text>
+    <text class="note" x="917" y="254" text-anchor="middle">You approve the push.</text>
+    <text class="note" x="917" y="271" text-anchor="middle">Opens the PR on GitHub</text>
+    <text class="note" x="917" y="288" text-anchor="middle">or Bitbucket.</text>
+
+    <!-- ARCHITECT sub-flow (x 190..310) -->
+    <path class="flow" d="M253 224 V300" marker-end="url(#ah)"/>
+    <rect class="step" x="190" y="300" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="318" text-anchor="middle">CI gate check</text>
+    <text class="st" x="250" y="332" text-anchor="middle" style="fill:var(--muted)">is a pipeline set up?</text>
+    <path class="flow" d="M250 340 V356" marker-end="url(#ah)"/>
+    <rect class="step" x="190" y="356" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="380" text-anchor="middle">Baseline tests</text>
+    <path class="flow" d="M250 396 V412" marker-end="url(#ah)"/>
+    <rect class="step sec" x="190" y="412" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="428" text-anchor="middle">Baseline security</text>
+    <text class="st" x="250" y="443" text-anchor="middle">scan, base branch</text>
+
+    <!-- DEVELOPER TDD sub-flow (x 344..494) -->
+    <path class="flow" d="M385 224 V300" marker-end="url(#ah)"/>
+    <rect class="step" x="344" y="300" width="150" height="40" rx="6"/>
+    <text class="st" x="419" y="317" text-anchor="middle">Next test from queue</text>
+    <text class="st" x="419" y="331" text-anchor="middle" style="fill:var(--muted)">negative, edge, happy path</text>
+    <path class="flow" d="M419 340 V356" marker-end="url(#ah)"/>
+    <rect class="step red" x="344" y="356" width="150" height="40" rx="6"/>
+    <text class="st" x="419" y="373" text-anchor="middle">RED: subagent writes</text>
+    <text class="st" x="419" y="387" text-anchor="middle">one failing test</text>
+    <path class="flow" d="M419 396 V412" marker-end="url(#ah)"/>
+    <rect class="step ok" x="344" y="412" width="150" height="40" rx="6"/>
+    <text class="st" x="419" y="429" text-anchor="middle">GREEN: minimum code</text>
+    <text class="st" x="419" y="443" text-anchor="middle">to pass the test</text>
+    <path class="flow" d="M419 452 V468" marker-end="url(#ah)"/>
+    <rect class="step" x="344" y="468" width="150" height="40" rx="6"/>
+    <text class="st" x="419" y="485" text-anchor="middle">REFACTOR</text>
+    <text class="st" x="419" y="499" text-anchor="middle" style="fill:var(--muted)">apply SOLID</text>
+    <path class="flow" d="M419 508 V524" marker-end="url(#ah)"/>
+    <rect class="step sec" x="344" y="524" width="150" height="40" rx="6"/>
+    <text class="st" x="419" y="541" text-anchor="middle">Quick secret check</text>
+    <text class="st" x="419" y="555" text-anchor="middle">on staged files</text>
+    <path class="flow" d="M419 564 V572" marker-end="url(#ah)"/>
+    <path class="dec" d="M419 572 L489 600 L419 628 L349 600 Z"/>
+    <text class="st s11" x="419" y="597" text-anchor="middle">You approve</text>
+    <text class="st s11" x="419" y="611" text-anchor="middle">the commit?</text>
+    <path class="flow" d="M349 600 H330 V320 H344" marker-end="url(#ah)"/>
+    <text class="lbl" x="326" y="618" text-anchor="end">yes: next test</text>
+    <path class="flow" d="M419 628 V652" marker-end="url(#ah)"/>
+    <text class="lbl" x="427" y="645">queue empty</text>
+    <rect class="step" x="344" y="652" width="150" height="34" rx="6"/>
+    <text class="st" x="419" y="673" text-anchor="middle">Hand over to Code Review</text>
+
+    <!-- CODE REVIEW note -->
+    <text class="note" x="585" y="356" text-anchor="middle">Reads the diff.</text>
+    <text class="note" x="585" y="373" text-anchor="middle">Approves, or lists</text>
+    <text class="note" x="585" y="390" text-anchor="middle">the issues.</text>
+
+    <!-- SECURITY sub-flow (x 681..821) -->
+    <path class="flow" d="M790 224 V300" marker-end="url(#ah)"/>
+    <rect class="step sec" x="681" y="300" width="140" height="40" rx="6"/>
+    <text class="st" x="751" y="317" text-anchor="middle">gitleaks on the</text>
+    <text class="st" x="751" y="331" text-anchor="middle">ticket's commits</text>
+    <path class="flow" d="M751 340 V356" marker-end="url(#ah)"/>
+    <rect class="step sec" x="681" y="356" width="140" height="40" rx="6"/>
+    <text class="st" x="751" y="373" text-anchor="middle">SwiftLint on the</text>
+    <text class="st" x="751" y="387" text-anchor="middle">changed Swift files</text>
+    <path class="flow" d="M751 396 V412" marker-end="url(#ah)"/>
+    <rect class="step" x="681" y="412" width="140" height="40" rx="6"/>
+    <text class="st" x="751" y="429" text-anchor="middle">Compare with the</text>
+    <text class="st" x="751" y="443" text-anchor="middle">baseline scan</text>
+    <path class="flow" d="M751 452 V468" marker-end="url(#ah)"/>
+    <path class="dec sec" d="M751 468 L821 496 L751 524 L681 496 Z"/>
+    <text class="st s11" x="751" y="500" text-anchor="middle">Secret found?</text>
+    <path class="flow" d="M821 496 H845" marker-end="url(#ah)"/>
+    <text class="lbl" x="826" y="488">yes</text>
+    <rect class="step red" x="845" y="476" width="140" height="40" rx="6"/>
+    <text class="st" x="915" y="493" text-anchor="middle">Breach report posted</text>
+    <text class="st" x="915" y="507" text-anchor="middle">to Jira at once</text>
+    <path class="flow" d="M751 524 V548" marker-end="url(#ah)"/>
+    <text class="lbl" x="759" y="540">no</text>
+    <rect class="step" x="681" y="548" width="140" height="40" rx="6"/>
+    <text class="st" x="751" y="565" text-anchor="middle">You decide each</text>
+    <text class="st" x="751" y="579" text-anchor="middle">finding</text>
+
+    <!-- PR ROUTINE sub-flow (x 1016..1150) -->
+    <path class="flow" d="M1083 224 V300" marker-end="url(#ah)"/>
+    <rect class="step ok" x="1016" y="300" width="134" height="40" rx="6"/>
+    <text class="st" x="1083" y="317" text-anchor="middle">PR Monitor:</text>
+    <text class="st" x="1083" y="331" text-anchor="middle">checks every 30 min</text>
+    <path class="flow" d="M1083 340 V364" marker-end="url(#ah)"/>
+    <path class="dec ok" d="M1083 364 L1150 392 L1083 420 L1016 392 Z"/>
+    <text class="st s11" x="1083" y="396" text-anchor="middle">PR merged?</text>
+    <path class="flow" d="M1016 392 H990" marker-end="url(#ah)"/>
+    <text class="lbl" x="1012" y="384" text-anchor="end">no</text>
+    <rect class="step" x="850" y="372" width="134" height="40" rx="6"/>
+    <text class="st" x="917" y="389" text-anchor="middle">Changes requested:</text>
+    <text class="st" x="917" y="403" text-anchor="middle">rework flow</text>
+    <path class="flow" d="M1083 420 V450" marker-end="url(#ah)"/>
+    <text class="lbl" x="1091" y="440">yes</text>
+    <rect class="step ok" x="1016" y="450" width="134" height="40" rx="6"/>
+    <text class="st" x="1083" y="467" text-anchor="middle">Build Monitor:</text>
+    <text class="st" x="1083" y="481" text-anchor="middle">every 10 min, 3 tries</text>
+    <path class="flow" d="M1083 490 V532" marker-end="url(#ah)"/>
+    <path class="dec ok" d="M1083 532 L1150 560 L1083 588 L1016 560 Z"/>
+    <text class="st s11" x="1083" y="564" text-anchor="middle">Build green?</text>
+    <path class="flow" d="M1016 560 H990" marker-end="url(#ah)"/>
+    <text class="lbl" x="1012" y="552" text-anchor="end">no</text>
+    <rect class="step red" x="850" y="540" width="134" height="40" rx="6"/>
+    <text class="st s11" x="917" y="557" text-anchor="middle">Fix forward with the</text>
+    <text class="st s11" x="917" y="571" text-anchor="middle">Developer. Not in QA.</text>
+    <path class="flow" d="M1083 588 V612" marker-end="url(#ah)"/>
+    <text class="lbl" x="1091" y="606">yes</text>
+    <rect class="step ok" x="1016" y="612" width="134" height="44" rx="6"/>
+    <text class="st" x="1083" y="631" text-anchor="middle">Ticket moves to QA</text>
+    <text class="st" x="1083" y="645" text-anchor="middle">by itself</text>
+
+    <text class="note" x="20" y="736" style="font-size:13px">Every agent posts its result as a Jira comment. Maestro reads those comments to resume a ticket where it stopped.</text>
+  </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw"></i> You approve before the next step</span>
+    <span><i class="sw-loop"></i> Loop-back when issues are found</span>
+    <span><i class="sw-box node"></i> Pipeline agent</span>
+    <span><i class="sw-box red"></i> RED test, failure or breach</span>
+    <span><i class="sw-box sec"></i> Security check</span>
+    <span><i class="sw-box ok"></i> Runs by itself</span>
+  </div>
+</main>

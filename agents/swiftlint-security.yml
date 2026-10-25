@@ -1,0 +1,53 @@
+# Maestro security rules for SwiftLint. Tested with SwiftLint 0.65.1 (Oct 2026).
+# The rule IDs map to agents/security_standards.md, section 4.
+# This file stays in Maestro. It is not copied into projects.
+# The Architect and the Security Agent run it with
+#   --config "$HOME/.maestro/agents/swiftlint-security.yml"  and one --only-rule per rule.
+# So a project's own .swiftlint.yml cannot switch these rules off.
+# There is no "excluded" list: SwiftLint ignores it when the config is outside the project.
+# The agents pass only tracked, non-test .swift files.
+# A lint rule only sees code patterns. Expect some false positives.
+
+opt_in_rules:
+  - force_unwrapping
+
+force_try:
+  severity: warning
+force_cast:
+  severity: warning
+force_unwrapping:
+  severity: warning
+
+custom_rules:
+  sec_no_print_log:
+    name: "Printing or logging (SEC-STO-04)"
+    regex: '\b(print|NSLog|debugPrint|dump)\b'
+    match_kinds: identifier
+    message: "Do not print or log Personal or Credential data. Use Logger with privacy .private, or leave the value out (SEC-STO-04)."
+    severity: warning
+
+  sec_weak_hash_or_cipher:
+    name: "Weak hash or cipher (SEC-CRY-02)"
+    regex: '\b(MD5|SHA1|CC_MD5|CC_SHA1|kCCAlgorithmDES|kCCAlgorithm3DES|kCCAlgorithmRC4)\b'
+    match_kinds: identifier
+    message: "MD5, SHA-1, DES, 3DES and RC4 must not protect anything. Use AES-GCM or ChaChaPoly, and SHA-256 or stronger (SEC-CRY-02)."
+    severity: warning
+
+  sec_weak_random:
+    name: "Weak random numbers (SEC-CRY-04)"
+    regex: '\b(rand|srand|srandom|drand48)\b'
+    match_kinds: identifier
+    message: "Use SecRandomCopyBytes, SystemRandomNumberGenerator or CryptoKit for random values with a security purpose (SEC-CRY-04)."
+    severity: warning
+
+  sec_userdefaults_secret:
+    name: "Secret in UserDefaults (SEC-STO-01)"
+    regex: '(?i)UserDefaults[^\n]*(token|password|passwd|secret|apikey|api_key)'
+    message: "Credentials and tokens belong in the Keychain, not in UserDefaults (SEC-STO-01)."
+    severity: warning
+
+  sec_hardcoded_secret:
+    name: "Hard-coded secret (SEC-CRY-03, SEC-PRC-01)"
+    regex: '(?i)(password|passwd|secret|api[_-]?key|token)\w*\s*[:=]\s*"[^"\s]{8,}"'
+    message: "A secret must not be written in code. Read it from the Keychain or from environment config (SEC-CRY-03, SEC-PRC-01)."
+    severity: warning

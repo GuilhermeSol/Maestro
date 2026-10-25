@@ -1,0 +1,9 @@
+.env
+.mcp.json
+workspaces/
+.claude/settings.local.json
+.DS_Store
+__pycache__/
+*.pyc
+.maestro_state/
+.claude/settings.json
