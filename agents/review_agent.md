@@ -228,7 +228,7 @@ file, verify placement and boundary integrity.
 
 _File placement_
 Identify the intended layer from the file path first. If the path is
-ambiguous or flat, use the decision tree from CLAUDE.md:
+ambiguous or flat, use this decision tree:
 1. Imports SwiftUI or UIKit → UI
 2. Creates or injects concrete implementations → Composition Root
 3. Accesses or transforms data from network, database, or external

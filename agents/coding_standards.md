@@ -99,8 +99,8 @@ Rules:
 - No imports of UIKit, SwiftUI, CoreData, URLSession, or any
   infrastructure framework
 - No knowledge of how data is fetched, stored, or displayed
-- Must be fully testable with plain XCTest — no simulator, no network,
-  no database required
+- Must be fully testable with plain unit tests — no simulator, no
+  network, no database required
 - The rule lives here. The error message shown to the user lives in
   Presentation. Never mix them.
 

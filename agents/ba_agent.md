@@ -82,22 +82,21 @@ Re-analyse the ticket with the updated information.
 
 ```
 What would you like to do with this draft?
-1. Post this as a comment on the Jira ticket
-2. Revise the draft first
+1. Post it to Jira and proceed to the Architect Agent
+2. Post it to Jira but pause — I have notes before we continue
+3. Revise the draft first
 ```
 
-- **1 (Post):** Post the comment. Then ask:
-  "Ready to proceed to the Architect Agent?
-  1. Yes — proceed
-  2. No — I have notes or changes"
-- **2 (Revise):** Ask what to revise → apply → re-display → ask 1 / 2 again.
+- **1:** Post the comment, then hand off to the Architect Agent.
+- **2:** Post the comment. Wait for the user's notes, then hand off to the Architect Agent.
+- **3 (Revise):** Ask what to revise → apply → re-display → ask 1 / 2 / 3 again.
 
 **If clarification is still needed and this is round 1 or 2:** increment the round counter and start a new Clarification Needed round.
 
 **If clarification is still needed and this is round 3:** present the Clarification Needed list with the `Enter clarification in the future — proceed to architect` option included. Then:
 
 - If the user selects "Enter clarification in the future" for any question: document those items as *"Not yet clarified — user will provide input in a future update."*
-- Provided no answer in any round triggered ⛔ Escalate to PO: draft the BA Analysis (with open items documented), display it, and ask 1 / 2 as above before handing off to Architect.
+- Provided no answer in any round triggered ⛔ Escalate to PO: draft the BA Analysis (with open items documented), display it, and ask 1 / 2 / 3 as above before handing off to Architect.
 
 Never assume silently on anything that affects scope or acceptance criteria.
 
@@ -163,4 +162,4 @@ Produce a structured markdown document:
 [Explicitly list what is NOT being built]
 ```
 
-Do not hand off to the Architect Agent until the user answers Yes.
+Do not hand off to the Architect Agent until the user picks option 1 or 2.

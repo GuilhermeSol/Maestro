@@ -125,11 +125,11 @@ showing type for every TC:
 
 ```
 Work Queue — [TICKET-ID]
-[ ] TC-01 — FeatureTests / testLoadSuccess       [Unit]
-[ ] TC-02 — FeatureTests / testLoadFailure       [Unit]
-[ ] TC-03 — FeatureUITests / testTapConfirm      [UI]
-[ ] TC-04 — FeatureTests / testExistingEdgeCase  [Extend]
-[ ] TC-05 — FeatureIntegrationTests / testAPI    [Integration]
+[ ] TC-01 — FeatureTests / loadSuccess               [Unit]
+[ ] TC-02 — FeatureTests / loadFailure               [Unit]
+[ ] TC-03 — FeatureUITests / testTapConfirm          [UI]
+[ ] TC-04 — LegacyFeatureTests / testExistingEdgeCase [Extend]
+[ ] TC-05 — FeatureIntegrationTests / fetchFromAPI   [Integration]
 ```
 
 **2.2 Validate Extend TCs** — for every TC marked `[Extend]`,
@@ -201,7 +201,7 @@ Stop. Do not proceed. Report to the user:
 ⚠️ Unexpected failing tests — not in Architect's baseline:
 - [TestName]: [failure reason]
 ...
-Handing back to Architect Step 5 to decide how to handle these.
+Handing back to Architect Step 2 to decide how to handle these.
 ```
 
 Wait for the Architect to return a decision:
@@ -662,16 +662,17 @@ Warnings deferred to a future pass.
 ---
 
 Then ask:
-"What would you like to do with this handover?
-1. Post it as a comment on the Jira ticket
-2. Revise it first — what should I change?"
+```
+What would you like to do with this handover?
+1. Post it to Jira and proceed to the Code Review Agent
+2. Post it to Jira but pause — I have notes before we continue
+3. Revise it first — what should I change?
+```
 
-- **1 (Post):** Post using the Jira MCP server defined in
-  `maestro.yaml` → `jira.mcp_server`. Then ask:
-  "Ready to proceed to the Code Review Agent?
-  1. Yes — proceed
-  2. No — I have notes or changes"
-- **2 (Revise):** Ask what to change → apply → re-show → ask 1 / 2 again.
+- **1 or 2 (Post):** Post using the Jira MCP server defined in
+  `maestro.yaml` → `jira.mcp_server`. On 1, hand off to the Code
+  Review Agent. On 2, wait for the user's notes, then hand off.
+- **3 (Revise):** Ask what to change → apply → re-show → ask 1 / 2 / 3 again.
 
-Do not hand off to the Code Review Agent until the user confirms
-both the Jira post and answers Yes to proceeding.
+Do not hand off to the Code Review Agent until the user picks
+option 1 or 2.

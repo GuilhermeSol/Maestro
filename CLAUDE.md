@@ -20,7 +20,7 @@ Each agent hands its output to the next. You carry the state forward.
 
 ## HITL Rules — Non-Negotiable
 
-- **Before every agent transition**: show the user a summary of what the current agent produced, then ask explicitly: _"Ready to proceed to [next agent]? (yes / no / add notes)"_
+- **Before every agent transition**: show the user a summary of what the current agent produced. Ask one question that includes the choice to proceed. Each agent asks this question at the end of its work, so Maestro does not ask again. If an agent ends without that question, Maestro asks: _"Ready to proceed to [next agent]? (yes / no / add notes)"_
 - **Before every git commit**: show the diff summary and ask for approval
 - **Before every git push**: show what will be pushed and ask for approval
 - **On any loop-back**: clearly explain what issue was found and which agent is re-running

@@ -45,7 +45,7 @@ Then branch on what you found:
 - **Jira cannot be read** (MCP server not authorized, or ticket not found): say so plainly and ask whether to (1) start fresh at the BA Agent, or (2) name the agent to resume from. Do not guess the phase.
 
 ## Step 3 — Run the pipeline in order
-Enter at the agent chosen in Step 2 (BA Agent for a fresh start) and continue the sequence from there. After each agent, present a summary and ask:
+Enter at the agent chosen in Step 2 (BA Agent for a fresh start) and continue the sequence from there. Each agent ends with one question that includes the choice to proceed to the next step. Do not ask again after it. If an agent ends without that question, present a summary and ask:
 "Ready to proceed to [next step]? (yes / no / add notes)"
 Never advance without explicit approval.
 
