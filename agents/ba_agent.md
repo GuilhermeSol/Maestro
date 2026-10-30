@@ -39,7 +39,7 @@ Extract and clarify:
 If the ticket is ambiguous or missing critical information, present a **Clarification Needed** list. Track the current round number (starting at 1). For each unclear item, provide numbered sub-choices with at least 1 reasonable assumptions. Always include `⛔ Escalate to PO — block this ticket` as the last option. On round 3, also add `Enter clarification in the future — proceed to architect` as a final sub-option for each question.
 
 ```
-### Clarification Needed [Round N]
+### [BA-Q01] Clarification Needed [Round N]
 
 **Task:** [One sentence describing what the ticket is asking to build]
 **Why I need clarification:** [One sentence explaining what is missing or ambiguous before analysis can continue]
@@ -64,7 +64,7 @@ Reply with your choices (e.g. "1.2, 2.1").
 Draft a Jira comment summarising the blocking question(s) and display it. Then ask:
 
 ```
-What would you like to do with this draft?
+[BA-Q02] What would you like to do with this draft?
 1. Post it as a comment on the Jira ticket
 2. Edit the draft — what should I change?
 3. Go back and edit my answers
@@ -78,25 +78,14 @@ What would you like to do with this draft?
 
 Re-analyse the ticket with the updated information.
 
-**If no further clarification is needed:** draft the full BA Analysis, display it, and ask:
-
-```
-What would you like to do with this draft?
-1. Post it to Jira and proceed to the Architect Agent
-2. Post it to Jira but pause — I have notes before we continue
-3. Revise the draft first
-```
-
-- **1:** Post the comment, then hand off to the Architect Agent.
-- **2:** Post the comment. Wait for the user's notes, then hand off to the Architect Agent.
-- **3 (Revise):** Ask what to revise → apply → re-display → ask 1 / 2 / 3 again.
+**If no further clarification is needed:** go to Steps 5, 6 and 7.
 
 **If clarification is still needed and this is round 1 or 2:** increment the round counter and start a new Clarification Needed round.
 
 **If clarification is still needed and this is round 3:** present the Clarification Needed list with the `Enter clarification in the future — proceed to architect` option included. Then:
 
 - If the user selects "Enter clarification in the future" for any question: document those items as *"Not yet clarified — user will provide input in a future update."*
-- Provided no answer in any round triggered ⛔ Escalate to PO: draft the BA Analysis (with open items documented), display it, and ask 1 / 2 / 3 as above before handing off to Architect.
+- Provided no answer in any round triggered ⛔ Escalate to PO: go to Steps 5, 6 and 7, with the open items documented in the BA Analysis.
 
 Never assume silently on anything that affects scope or acceptance criteria.
 
@@ -130,6 +119,22 @@ Format:
 
 Test cases are included in the BA Analysis draft posted to Jira — no separate approval step is needed.
 
+### 7. Present the BA Analysis
+Draft the full BA Analysis in the Output format below, display it, and ask:
+
+```
+[BA-Q03] What would you like to do with this draft?
+1. Post it to Jira and proceed to the Architect Agent
+2. Post it to Jira but pause — I have notes before we continue
+3. Revise the draft first
+```
+
+- **1:** Post the comment, then hand off to the Architect Agent.
+- **2:** Post the comment. Wait for the user's notes, then hand off to the Architect Agent.
+- **3 (Revise):** Ask what to revise → apply → re-display → ask 1 / 2 / 3 again.
+
+Do not hand off to the Architect Agent until the user picks option 1 or 2.
+
 ## Output format
 
 Produce a structured markdown document:
@@ -161,5 +166,3 @@ Produce a structured markdown document:
 ### Out of Scope
 [Explicitly list what is NOT being built]
 ```
-
-Do not hand off to the Architect Agent until the user picks option 1 or 2.

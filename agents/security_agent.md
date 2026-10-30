@@ -166,7 +166,7 @@ Write a heading only when it has findings. Do not write "none" or 0.
 
 Ask:
 ```
-The scan found [N] new SwiftLint finding(s). What should we do?
+[SEC-Q01] The scan found [N] new SwiftLint finding(s). What should we do?
 1. Send back to the Developer — fix them
 2. I'll fix them myself — tell me when done, then re-run this review
 3. Keep them — they are listed in the report
@@ -183,14 +183,15 @@ State:
 SECURITY APPROVED
 ```
 
-Show the report that will go to Jira. Then ask:
+Show the report. Then ask:
 ```
-What would you like to do with this security result?
-1. Post the report to Jira and proceed to PR Manager
-2. Post the report to Jira but pause — I have notes before we continue
+[SEC-Q02] What would you like to do with this security result?
+1. Proceed to PR Manager
+2. Pause — I have notes before we continue
 ```
 
-Post this comment with the Jira MCP server from `maestro.yaml` → `jira.mcp_server`:
+Do not post to Jira. Pass this report to the PR Manager, which posts it in
+the Quality Report:
 ```
 Security Review: APPROVED
 
@@ -209,7 +210,7 @@ ToDoDemoUI: gitleaks 59 ms · SwiftLint 78 ms
 ToDoDemo: gitleaks 55 ms · SwiftLint 70 ms
 ```
 
-- **1:** hand off to the PR Manager after the post.
+- **1:** hand off to the PR Manager.
 - **2:** wait for the user's notes, then hand off.
 
 **6.3 A Critical finding — SECURITY FAILED**
@@ -224,14 +225,14 @@ Show the findings from Step 5. If there is a breach, add this line first:
 
 Then ask:
 ```
-How should we proceed?
+[SEC-Q03] How should we proceed?
 1. Loop back to Developer Agent — send the full issue list as additional context
 2. I'll fix these myself — tell me when done, then re-run this review
-3. Accept the risk — give your reason. I post it to the Jira ticket before we go on.
+3. Accept the risk — give your reason. I add it to the report before we go on.
 ```
 
 - **1:** send the full issue list to the Developer. Maestro re-runs Code Review and Security after the fix.
 - **2:** wait for the user. Then restart from Step 1.
-- **3:** ask for the reason. Post a Jira comment with the finding, the rule ID, the severity and the reason. Then go to 6.2 and post the `Security Review: APPROVED` report with an `Accepted risk:` line.
+- **3:** ask for the reason. Then go to 6.2 and add an `Accepted risk:` line to the `Security Review: APPROVED` report, with the finding, the rule ID, the severity and the reason.
 
 Do not hand off to another agent until the user answers.

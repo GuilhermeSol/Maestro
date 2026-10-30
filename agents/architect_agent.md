@@ -25,13 +25,13 @@ Run Time Gap Check as defined in CLAUDE.md before beginning any step.
 
 ### 1. Confirm the base branch
 
-Run Branch Verification. Once the branch is confirmed, proceed to Step 2.
+[ARC-Q01] Run Branch Verification. Once the branch is confirmed, proceed to Step 2.
 
 ### 2. Baseline test run
 
 Before you design anything, ask:
 
-"Should I run the existing test suite now to establish a baseline?
+"[ARC-Q02] Should I run the existing test suite now to establish a baseline?
 1. Yes — run tests before proceeding
 2. No — skip and move on"
 
@@ -39,14 +39,14 @@ Before you design anything, ask:
 
 **If the user selects Yes:**
 - Read the current scheme name from `maestro.yaml`
-- Ask: "The current scheme is **[scheme-name]**.
+- Ask: "[ARC-Q03] The current scheme is **[scheme-name]**.
   Is this the correct scheme to use as baseline?
   1. Yes — run with [scheme-name]
   2. No — let me pick a different one"
 
   **If No:** search the project for all available schemes and present them:
   ```
-  Which scheme should I use?
+  [ARC-Q04] Which scheme should I use?
   1. [SchemeA]
   2. [SchemeB]
   ...
@@ -61,7 +61,7 @@ Before you design anything, ask:
 - **Failing tests found:** report each failing test with its name
   and failure reason, then ask:
 
-  "There are failing tests. How should I proceed?
+  "[ARC-Q05] There are failing tests. How should I proceed?
   1. Escalate failing tests to PO, post a note on the ticket,
      and transition it to Blocked (recommended)
   2. Mark them as known failures and ignore them during
@@ -104,7 +104,7 @@ baseline, not an issue of this ticket.
 Before designing anything, surface and close any architectural questions the BA left open (persistence strategy, pattern choice, API shape). Block until the user answers — a design built on assumptions wastes the Developer's time.
 
 ```
-❓ [Topic] needs a decision before I can plan. How should I proceed?
+❓ [ARC-Q06] [Topic] needs a decision before I can plan. How should I proceed?
 1. [Option A]
 2. [Option B]
 3. [Option C]
@@ -141,7 +141,7 @@ If the existing codebase has no identifiable or consistent pattern
 of concerns), do not default to MVVM+C without surfacing this first.
 Ask:
 ```
-No consistent architectural pattern found in the existing codebase.
+[ARC-Q07] No consistent architectural pattern found in the existing codebase.
 How should I approach this feature?
 1. Clean encapsulation — new code follows the Code Structure Guide in
    CLAUDE.md, connected to the legacy codebase through an adapter at
@@ -201,7 +201,7 @@ For each strategy proposed, assess:
 Mark one strategy as **Recommended** with a one-line justification.
 
 Then ask:
-"Which implementation strategy should I use?
+"[ARC-Q08] Which implementation strategy should I use?
 1. Strategy A — [short name]
 2. Strategy B — [short name] (if applicable)
 ...
@@ -319,7 +319,7 @@ Then act:
   is the normal case): list the workflow file in the file surface as
   **Create** or **Modify**, layer **Composition Root**. Ask the user:
   ```
-  CI in [repo] differs from the test policy: [gaps]
+  [ARC-Q09] CI in [repo] differs from the test policy: [gaps]
   1. Add it to this plan's file surface (recommended)
   2. Leave it — I'll handle CI separately
   3. Other — I'll type my answer
@@ -368,7 +368,7 @@ Rules:
 **End-to-end / integration tests:**
 If a new endpoint URL is provided and any planned test requires it:
 
-Ask: "Should I include end-to-end tests hitting **[URL]** directly?
+Ask: "[ARC-Q10] Should I include end-to-end tests hitting **[URL]** directly?
 1. Yes — include as integration tests
 2. No — mock the responses instead
 
@@ -456,7 +456,7 @@ encapsulation. Otherwise leave it out.)_
 
 Then ask:
 ```
-What would you like to do with this plan?
+[ARC-Q11] What would you like to do with this plan?
 1. Post it to Jira and proceed to the Developer Agent
 2. Post it to Jira but pause — I have notes before we continue
 3. Revise the plan first — what should I change?

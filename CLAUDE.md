@@ -288,7 +288,7 @@ Maestro passes the relevant stored branch name (`base_branch` for the Architect;
 3. If a branch name is stored, compare it to the current branch:
    - 3.1 Same → skip, proceed normally
    - 3.2 Different → go to step 4
-4. Ask: "Double checking — is **[current-branch-name]** the correct branch to perform the current work on?
+4. Ask: "[ALL-Q01] Double checking — is **[current-branch-name]** the correct branch to perform the current work on?
    1. Yes
    2. No — I'll checkout the correct branch myself"
 5. If Yes: store the branch name and proceed

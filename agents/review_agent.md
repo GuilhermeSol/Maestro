@@ -62,14 +62,6 @@ across review sessions.
 Read the developer's notes in full. These explain architectural decisions
 and trade-offs — weigh them during the quality review.
 
-**0.7 Current Unit Test Coverage Status**
-Read the "Current Unit Test Coverage Status" section of the handover. Record the module name
-of every row in the table, including every module shown as `Not run — [reason]`.
-Step 2.6 checks these against the code changes. The values only inform. Do not raise a finding
-for a low coverage or a small test count, and do not block on them. A failing test is still
-handled by Step 2 (regression accounting).
-If the section is missing, write `Test coverage status: not in handover` in the summary.
-
 ---
 
 ### 1. Get the diff
@@ -135,25 +127,6 @@ For each SOLID violation logged by the developer:
 If `maestro.yaml` → `ios.swiftlint` is configured, note any deferred
 warnings from the Developer Handover. Include them in the review output
 as Suggestions unless they are errors, in which case flag as Critical.
-
-**2.6 Coverage status covers every changed module**
-
-Match each module in the handover to the code changes:
-1. List the repos the diff touches (one `git diff [base_branch]...[work_branch]` for each repo
-   in the plan). Each repo with at least one changed file is a changed module.
-   Take the module name from `maestro.yaml` → `ios.modules` (match the repo folder name).
-   The main app repo is the module of the main scheme.
-2. Compare that list with the module names found in Step 0.7.
-3. For each changed module, one of these must be true:
-   - The table has a row for that module with its test numbers.
-   - The handover shows that module as `Not run — [reason]` and the reason is valid
-     (for example the tool exited 2 and the Developer told the user).
-4. A row for a module with no changed files is not an issue. Note it as a Suggestion only.
-
-Raise a **Critical** issue for each changed module that has neither a row with test numbers nor a valid
-`Not run` row. Write the module name and the changed files in the issue. The fix is small:
-the Developer runs `maestro-test-metrics` for that module and updates the handover.
-Only the presence of the row is checked, never its values.
 
 ---
 
@@ -335,7 +308,6 @@ Then provide a summary:
 
 TCs verified:            N / N
 Files reviewed:          N
-Test coverage status:    [per module: all changed modules covered; N tests, N failing, X.X% coverage / not in handover]
 SOLID:                   [No violations found / N violations logged — see handover]
 Architecture:            [Compliant / N violations — see issues]
 Data storage:            [No schema changes / Migration verified / N issues — see issues]
@@ -346,14 +318,13 @@ Suggestions:             [None / N — optional, developer's discretion]
 
 Then ask:
 ```
-What would you like to do with this review result?
-1. Post approval comment to Jira and proceed to Security Agent
-2. Post approval comment to Jira but pause — I have notes before we continue
-3. Proceed to Security Agent without posting a Jira comment
+[REV-Q01] What would you like to do with this review result?
+1. Proceed to Security Agent
+2. Pause — I have notes before we continue
 ```
 
-**Option 1 or 2 — post to Jira:**
-Post a comment using the MCP server from `maestro.yaml` → `jira.mcp_server`:
+Do not post to Jira. Pass this result to the next agent. The PR Manager
+posts it in the Quality Report:
 ```
 Code Review: APPROVED
 
@@ -365,9 +336,8 @@ Data storage: [No schema changes / Migration verified / N issues]
 Minor issues: [none / N logged — recommend addressing in a follow-up if needed]
 ```
 
-- **Option 1:** hand off to Security Agent immediately after posting.
+- **Option 1:** hand off to Security Agent.
 - **Option 2:** wait for the user's notes, then hand off to Security Agent.
-- **Option 3:** hand off to Security Agent without posting.
 
 Do not hand off until the user has answered the question above.
 
@@ -396,7 +366,7 @@ Present the full issue list:
 
 Then ask:
 ```
-How should we proceed?
+[REV-Q02] How should we proceed?
 1. Loop back to Developer Agent — send the full issue list as additional context
 2. I'll fix these myself — let me know when done, then re-run this review
 3. Downgrade one or more Critical items — I'll tell you which and why

@@ -39,7 +39,7 @@ git stash list
 
 **If uncommitted changes or untracked files are found**, stop and report:
 ```
-⚠️ Working tree is not clean:
+⚠️ [DEV-Q01] Working tree is not clean:
 [git status output summary]
 
 How should we proceed?
@@ -88,7 +88,7 @@ git checkout [base_branch] && git pull
   ```
 - **Already exists:** ask:
   ```
-  Branch [branch-name] already exists.
+  [DEV-Q02] Branch [branch-name] already exists.
   1. Check it out — continue previous work on this branch
   2. Create a new branch — fresh start (I'll type the name)
   ```
@@ -99,7 +99,7 @@ git checkout [base_branch] && git pull
 **1.7** Move the Jira ticket to In Progress. Once the branch is
 confirmed, ask:
 ```
-Branch [work_branch] is ready. Should I move [TICKET-ID] to
+[DEV-Q03] Branch [work_branch] is ready. Should I move [TICKET-ID] to
 [jira.in_progress_column] now?
 1. Yes — transition the ticket
 2. No — leave the ticket where it is
@@ -137,7 +137,7 @@ locate the test file on disk right now:
 - File found → confirm the target method exists; note it in the queue
 - File not found → stop and report:
   ```
-  ⚠️ Extend TC [TC-ID] references [File] — file not found.
+  ⚠️ [DEV-Q04] Extend TC [TC-ID] references [File] — file not found.
   1. Point me to the correct path
   2. Treat as Create instead
   3. Remove this TC from the queue — I'll explain why it's no longer needed
@@ -147,7 +147,7 @@ locate the test file on disk right now:
 **2.3 Surface Integration TC notices** — if any TC is `[Integration]`,
 show the notice now before the user approves the queue:
 ```
-⚠️ Integration notice: TC-05 hits a live endpoint ([URL]).
+⚠️ [DEV-Q05] Integration notice: TC-05 hits a live endpoint ([URL]).
 These tests must only run in a dedicated integration scheme —
 never in the development scheme. Confirm you want to include them:
 1. Yes — I have a separate integration scheme
@@ -156,7 +156,7 @@ never in the development scheme. Confirm you want to include them:
 
 **2.4 Confirm order** — present the final queue and ask:
 ```
-Does this implementation order look right?
+[DEV-Q06] Does this implementation order look right?
 1. Yes — start baseline assessment
 2. No — I'll describe what to adjust
 ```
@@ -210,7 +210,7 @@ Wait for the Architect to return a decision:
 
 **Once baseline is clean (or all ignores confirmed), ask:**
 ```
-How should I run the suite during implementation?
+[DEV-Q07] How should I run the suite during implementation?
 1. After every refactor — catches regressions immediately
    (recommended — keeps the TDD loop honest; reconsider if the suite is very slow)
 2. Only once at the end — faster loop, single-test runs during TDD cycle
@@ -288,7 +288,7 @@ Feed the updated declaration back to `red-tdd-developer` and restart 3.1.
 The subagent reported a precise blocker (symbol / type / interop boundary).
 Stop. Present to the user:
 ```
-⚠️ RED blocker on [TC-ID]: [subagent's blocker description]
+⚠️ [DEV-Q09] RED blocker on [TC-ID]: [subagent's blocker description]
 How should we proceed?
 1. Redesign the test declaration — I'll describe a different approach
    (restart 3.1 with the revised declaration)
@@ -318,7 +318,7 @@ Test must pass. Debug and re-run until it does. Do not advance until GREEN.
 
 **If GREEN cannot be reached after 3 attempts**, stop and escalate to the user:
 ```
-⚠️ Could not reach GREEN on [TC-ID] after 3 attempts.
+⚠️ [DEV-Q10] Could not reach GREEN on [TC-ID] after 3 attempts.
 
 Attempts:
   1. [what was tried] — [why it failed]
@@ -343,7 +343,7 @@ attempt a workaround.
 Assess the blocker and state a recommendation, then present:
 
 ```
-⚠️ Structural blocker on [TC-ID]: [precise description]
+⚠️ [DEV-Q11] Structural blocker on [TC-ID]: [precise description]
   — Type: [Private access / Bad architecture / Monolithic code /
            Giant refactor / Submodule limitation / Other]
   — What was tried: [one line]
@@ -376,7 +376,7 @@ For each file touched in this TC's GREEN phase, evaluate explicitly:
 
 If a violation is found:
 ```
-⚠️ SOLID issue in [File:Line]: [Principle] — [brief description]
+⚠️ [DEV-Q12] SOLID issue in [File:Line]: [Principle] — [brief description]
 1. Fix it now — refactor the minimum required (recommended if small)
 2. Minimal shim — stay compliant without touching legacy code
 3. Flag as tech debt — add TODO comment and proceed
@@ -411,7 +411,7 @@ Do not advance until all required tests are green.
 
 **If tests are still failing after 3 refactor attempts**, stop and escalate to the user:
 ```
-⚠️ Could not get all tests green after 3 refactor attempts on [TC-ID].
+⚠️ [DEV-Q13] Could not get all tests green after 3 refactor attempts on [TC-ID].
 
 Attempts:
   1. [what was changed] — [which test still failed and why]
@@ -441,7 +441,7 @@ The script prints one line. It never shows a secret value.
 - `Not run — [reason]` → tell the user the reason in one line. Continue.
 - `FOUND` → do not commit yet. Show the line. Never show the value. Ask:
   ```
-  The secret check found a possible secret: [rule] in [file:line].
+  [DEV-Q14] The secret check found a possible secret: [rule] in [file:line].
   A commit puts it in the git history. Maestro does not rewrite history.
   1. Fix it — use a fake value, or read the real value from the Keychain.
      Then stage again and re-run the check.
@@ -468,7 +468,7 @@ Co-Authored-By: Maestro (https://github.com/GuilhermeSol/Maestro)
 ```
 
 Ask:
-"OK to commit?
+"[DEV-Q15] OK to commit?
 1. Yes — commit
 2. No — I'd like to change something"
 Never commit without approval.
@@ -476,8 +476,8 @@ Never commit without approval.
 #### 3.6 Tick off the work queue
 
 ```
-[x] TC-01 — FeatureTests / testLoadSuccess ✓
-[ ] TC-02 — FeatureTests / testLoadFailure  ← next
+[x] TC-01 — FeatureTests / loadSuccess ✓
+[ ] TC-02 — FeatureTests / loadFailure  ← next
 [ ] TC-03 — FeatureUITests / testTapConfirm
 ```
 
@@ -494,7 +494,7 @@ If none were postponed, skip this step.
 
 If any were postponed, surface them:
 ```
-📋 Postponed TCs — [TICKET-ID]
+📋 [DEV-Q16] Postponed TCs — [TICKET-ID]
 
 The following TCs were parked during implementation:
 - [TC-ID]: [reason it was postponed]
@@ -520,25 +520,15 @@ Surface it at 3.5 COMMIT for that TC alongside the diff.
 
 ### 5. Full suite run
 
-After all TCs are committed, run the full suite regardless of session choice.
-Run the metrics tool once for each module you changed. A module is changed when
-`git -C "[repo path]" diff [base_branch]...[work_branch] --name-only` is not empty for its repo.
-The main app is a changed module when its repo has changes.
+After all TCs are committed, run the full suite regardless of session choice:
 
 ```bash
-~/.maestro/bin/maestro-test-metrics "[repo path]" --scheme "[scheme]" --module "[module name]" \
-  [--project "[path to .xcodeproj]" | --workspace "$WORKSPACE"] --source developer
+xcodebuild test \
+  -workspace "$WORKSPACE" \
+  -scheme "$SCHEME" \
+  -sdk iphonesimulator \
+  -destination "$DEST" 2>&1 | tail -50
 ```
-
-- Take the scheme and module name from `maestro.yaml` → `ios.modules`. The main app uses `$SCHEME`.
-  Never ask the user. If a changed module has no entry there, find the scheme yourself:
-  run `xcodebuild -list` in that repo. Use the scheme with the module's name. If none has that name
-  but the repo has exactly one scheme, use it. Otherwise write `Not run — no scheme found` for that module.
-- Leave out `--project` and `--workspace` for a Swift package.
-- The tool prints one JSON record on stdout. Exit 0 = no failing test. Exit 1 = failing tests
-  (JSON still printed). Exit 2 = `Not run`: write `Not run — [reason]` for that module and continue. Do not ask.
-- Keep every record as `test_status`. Use them to fill the handover table. Do not paste the JSON into the handover.
-- After a loop-back fix, run this step again. The newest records replace the old ones.
 
 **Classify any failures:**
 
@@ -548,15 +538,12 @@ The main app is a changed module when its repo has changes.
 - **Failure in a pre-existing test not on the ignore list** →
   regression gate:
   ```
-  ⚠️ Regression: [TestName] — was passing at baseline, now failing.
+  ⚠️ [DEV-Q17] Regression: [TestName] — was passing at baseline, now failing.
   1. Fix before proceeding (recommended)
   2. Escalate — this failure is outside the scope of this ticket
   ```
 
 - **Failure in a test on the ignore list** → skip; already documented.
-
-Read the failing tests from `failed_names` in each record. The coverage figure only reports.
-It never blocks.
 
 ---
 
@@ -572,7 +559,7 @@ swiftlint lint [changed files]
 - **Errors** → fix before proceeding
 - **Warnings** → surface to user:
   ```
-  SwiftLint warnings in [file]:
+  [DEV-Q18] SwiftLint warnings in [file]:
   - [Line]: [rule] — [description]
   1. Fix now
   2. Defer — add to deferred items in output
@@ -600,21 +587,12 @@ Compile and present the handover using this exact template:
   | [TestName] | [reason — escalated to PO / accepted risk] |
   [None if no ignored failures]
 
-### Current Unit Test Coverage Status
-| Module | Tests | Failing | Coverage | Run date |
-|--------|-------|---------|----------|----------|
-| [module] | [tests_total] | [tests_failed] | [coverage_pct]% | [run_date] |
-
-_(One row for each module the Developer changed. Write `n/a` when `coverage_pct` is null.
-A module that did not run shows `Not run — [reason]` in the Tests column.
-The table only reports the last run. No comparison, no warning, no gate.)_
-
 ### Work Queue
 | TC ID | Test File | Method | Type | Status |
 |-------|-----------|--------|------|--------|
-| TC-01 | FeatureTests | testLoadSuccess | Unit | ✅ Implemented |
+| TC-01 | FeatureTests | loadSuccess | Unit | ✅ Implemented |
 | TC-02 | FeatureUITests | testTapConfirm | UI | ⏭️ Skipped — [reason] |
-| TC-03 | FeatureTests | testEdgeCase | Extend | 🔜 Deferred — follow-up ticket [link or TBD] |
+| TC-03 | LegacyFeatureTests | testEdgeCase | Extend | 🔜 Deferred — follow-up ticket [link or TBD] |
 | TC-04 | FeatureTests | testBlocked | Unit | 🚧 Blocked — [reason, escalated/not] |
 
 ### Commits
@@ -663,7 +641,7 @@ Warnings deferred to a future pass.
 
 Then ask:
 ```
-What would you like to do with this handover?
+[DEV-Q19] What would you like to do with this handover?
 1. Post it to Jira and proceed to the Code Review Agent
 2. Post it to Jira but pause — I have notes before we continue
 3. Revise it first — what should I change?

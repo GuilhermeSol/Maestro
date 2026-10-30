@@ -8,6 +8,10 @@ The repo provider is **GitHub or Bitbucket** — read it from config, never assu
 - PR URL
 - Jira ticket ID
 - Project config from `maestro.yaml`
+- Timestamp of last agent interaction (passed by Maestro)
+
+## On Start
+Run Time Gap Check as defined in CLAUDE.md before beginning any step.
 
 ## Instructions
 
@@ -85,7 +89,7 @@ do not use an interactive question/answer tool:
 PR #[N] — [PR title]
 [PR URL]
 
-This PR is still a draft, so I won't start the review routine on it yet.
+[RTN-Q01] This PR is still a draft, so I won't start the review routine on it yet.
 
   1.1 I'll mark it ready for review, then start the routine
   1.2 Leave it as a draft — I'll stop here
@@ -154,7 +158,7 @@ participant with `"approved": true` and no outstanding changes) and the PR is st
 plain enumerated text, never an interactive tool:
 
 ```
-PR #[N] — [PR title] is approved.
+[RTN-Q02] PR #[N] — [PR title] is approved.
 
   1.1 Merge it now — I'll watch the [base_branch] build and move [TICKET-ID] to QA once it's green
   1.2 You'll merge it yourself — tell me when it's done and I'll watch the build from there
@@ -219,7 +223,7 @@ duplicate prompts or Jira comments.
 Reached when the PR Monitor exhausts its 16 attempts (~8 hours) with no approval, changes-requested,
 rejection, or merge. Tell the user, plain enumerated text, never an interactive tool:
 ```
-⏱️ PR #[N] — [PR title] still awaiting review after 8 hours of polling. No decision yet.
+⏱️ PR #[N] — [PR title] [RTN-Q03] still awaiting review after 8 hours of polling. No decision yet.
 [PR URL]
 
   1.1 Keep monitoring — how many more hours? (2 polls/hour)
@@ -282,7 +286,7 @@ Jira: moved to QA
 **c. On BUILD FAILED — stop, do NOT move to QA, ask** (roll-forward only — no revert)
 Fetch the failing check(s) so you can name the reason, then ask — plain enumerated text:
 ```
-🔴 [base_branch] build FAILED after merge — [TICKET-ID] NOT moved to QA.
+🔴 [base_branch] [RTN-Q04] build FAILED after merge — [TICKET-ID] NOT moved to QA.
 
 PR: [URL]
 Broken build on: [base_branch] @ [SHA]
@@ -293,9 +297,10 @@ What next?
   1.2 Escalate to the PO and block the ticket
 ```
 On **1.1**, hand the failure details to the Developer Agent (fix forward — do not revert the merge).
+Code Review, Security and the PR Manager then run again, and the PR Manager posts a new Quality Report.
 On **1.2**, follow the escalation steps in Step 4c.
 
-**d. On BUILD UNRESOLVED, no CI, or unreadable checks — ask, don't assume**
+[RTN-Q05] **d. On BUILD UNRESOLVED, no CI, or unreadable checks — ask, don't assume**
 The build didn't produce a green or red within ~30 minutes (still running, no CI on the target
 branch, or checks unreadable for token scope). Tell the user plainly and ask whether to keep waiting
 (re-run later), or move the ticket to QA manually. **Never assume green.**
@@ -311,7 +316,7 @@ Read the reviewer comments so you can summarise why.
 
 **b. Notify the user and ask what to do** — plain enumerated text, never an interactive tool:
 ```
-❌ [TICKET-ID] needs rework — [rejected / changes requested].
+❌ [TICKET-ID] [RTN-Q06] needs rework — [rejected / changes requested].
 
 PR: [URL]
 Reasons:
@@ -325,7 +330,8 @@ What next?
 **c. Act only on the answer**
 On **1.1**, hand the notes to the Developer Agent (fix forward). If **1.1** sends work back, the
 PR Monitor is done for this round — a new PR will be opened downstream, and the routine (and its
-Monitor) must be started again for that PR.
+Monitor) must be started again for that PR. Code Review, Security and the PR Manager run again
+first, and the PR Manager posts a new Quality Report.
 
 On **1.2**, escalate and block. The blocked status and the PO aren't in `maestro.yaml`, so **ask the
 user** for both in the moment, along with the reason:

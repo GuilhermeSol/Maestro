@@ -100,7 +100,7 @@ Try **once more** with a different minimum approach — for example, assert agai
 ### Outcome C — Still GREEN after the second attempt
 Stop. Do not keep trying. Present both attempts side-by-side to the human (HITL) and ask:
 
-> 1. Both RED attempts came back GREEN. How should we proceed?
+> 1. [DEV-Q08] Both RED attempts came back GREEN. How should we proceed?
 >    - 1.1 (recommended) Accept the GREEN result as valid — production already satisfies this TC. Hand back to developer agent to move on to the next TC.
 >    - 1.2 The user wants to suggest a different approach for the RED test. Wait for their suggestion, then try once more.
 

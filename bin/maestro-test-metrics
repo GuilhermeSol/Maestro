@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Maestro test metrics. The Developer runs it after the last commit, once for each module it changed.
+# Maestro test metrics. The PR Manager runs it before the push, once for each changed module.
 # It runs the test suite of ONE module with code coverage on and prints ONE JSON record.
 #
 #   maestro-test-metrics <repo path> --scheme <name> [--module <name>] [--project <path> | --workspace <path>]
-#                        [--destination <xcodebuild destination>] [--source developer|ci]
+#                        [--destination <xcodebuild destination>] [--source pr-manager|ci]
 #                        [--keep-bundle <dir>]
 #
 # --module   label in the record (default: the scheme name)
@@ -24,7 +24,7 @@ repo="${1:-}"; [ $# -gt 0 ] && shift
 [ -n "$repo" ] && [ -d "$repo" ] || notrun "give the repo path: maestro-test-metrics <repo path> --scheme <name>"
 repo="$(cd "$repo" && pwd)"
 
-scheme=""; module=""; project=""; workspace=""; dest=""; source_label="developer"; keep=""
+scheme=""; module=""; project=""; workspace=""; dest=""; source_label="pr-manager"; keep=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --scheme) scheme="${2:-}"; shift 2 ;;
