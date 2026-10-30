@@ -62,6 +62,14 @@ across review sessions.
 Read the developer's notes in full. These explain architectural decisions
 and trade-offs — weigh them during the quality review.
 
+**0.7 Current Unit Test Coverage Status**
+Read the "Current Unit Test Coverage Status" section of the handover. Record the module name
+of every row in the table, including every module shown as `Not run — [reason]`.
+Step 2.6 checks these against the code changes. The values only inform. Do not raise a finding
+for a low coverage or a small test count, and do not block on them. A failing test is still
+handled by Step 2 (regression accounting).
+If the section is missing, write `Test coverage status: not in handover` in the summary.
+
 ---
 
 ### 1. Get the diff
@@ -127,6 +135,25 @@ For each SOLID violation logged by the developer:
 If `maestro.yaml` → `ios.swiftlint` is configured, note any deferred
 warnings from the Developer Handover. Include them in the review output
 as Suggestions unless they are errors, in which case flag as Critical.
+
+**2.6 Coverage status covers every changed module**
+
+Match each module in the handover to the code changes:
+1. List the repos the diff touches (one `git diff [base_branch]...[work_branch]` for each repo
+   in the plan). Each repo with at least one changed file is a changed module.
+   Take the module name from `maestro.yaml` → `ios.modules` (match the repo folder name).
+   The main app repo is the module of the main scheme.
+2. Compare that list with the module names found in Step 0.7.
+3. For each changed module, one of these must be true:
+   - The table has a row for that module with its test numbers.
+   - The handover shows that module as `Not run — [reason]` and the reason is valid
+     (for example the tool exited 2 and the Developer told the user).
+4. A row for a module with no changed files is not an issue. Note it as a Suggestion only.
+
+Raise a **Critical** issue for each changed module that has neither a row with test numbers nor a valid
+`Not run` row. Write the module name and the changed files in the issue. The fix is small:
+the Developer runs `maestro-test-metrics` for that module and updates the handover.
+Only the presence of the row is checked, never its values.
 
 ---
 
@@ -308,6 +335,7 @@ Then provide a summary:
 
 TCs verified:            N / N
 Files reviewed:          N
+Test coverage status:    [per module: all changed modules covered; N tests, N failing, X.X% coverage / not in handover]
 SOLID:                   [No violations found / N violations logged — see handover]
 Architecture:            [Compliant / N violations — see issues]
 Data storage:            [No schema changes / Migration verified / N issues — see issues]

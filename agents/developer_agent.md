@@ -520,15 +520,25 @@ Surface it at 3.5 COMMIT for that TC alongside the diff.
 
 ### 5. Full suite run
 
-After all TCs are committed, run the full suite regardless of session choice:
+After all TCs are committed, run the full suite regardless of session choice.
+Run the metrics tool once for each module you changed. A module is changed when
+`git -C "[repo path]" diff [base_branch]...[work_branch] --name-only` is not empty for its repo.
+The main app is a changed module when its repo has changes.
 
 ```bash
-xcodebuild test \
-  -workspace "$WORKSPACE" \
-  -scheme "$SCHEME" \
-  -sdk iphonesimulator \
-  -destination "$DEST" 2>&1 | tail -50
+~/.maestro/bin/maestro-test-metrics "[repo path]" --scheme "[scheme]" --module "[module name]" \
+  [--project "[path to .xcodeproj]" | --workspace "$WORKSPACE"] --source developer
 ```
+
+- Take the scheme and module name from `maestro.yaml` → `ios.modules`. The main app uses `$SCHEME`.
+  Never ask the user. If a changed module has no entry there, find the scheme yourself:
+  run `xcodebuild -list` in that repo. Use the scheme with the module's name. If none has that name
+  but the repo has exactly one scheme, use it. Otherwise write `Not run — no scheme found` for that module.
+- Leave out `--project` and `--workspace` for a Swift package.
+- The tool prints one JSON record on stdout. Exit 0 = no failing test. Exit 1 = failing tests
+  (JSON still printed). Exit 2 = `Not run`: write `Not run — [reason]` for that module and continue. Do not ask.
+- Keep every record as `test_status`. Use them to fill the handover table. Do not paste the JSON into the handover.
+- After a loop-back fix, run this step again. The newest records replace the old ones.
 
 **Classify any failures:**
 
@@ -544,6 +554,9 @@ xcodebuild test \
   ```
 
 - **Failure in a test on the ignore list** → skip; already documented.
+
+Read the failing tests from `failed_names` in each record. The coverage figure only reports.
+It never blocks.
 
 ---
 
@@ -586,6 +599,15 @@ Compile and present the handover using this exact template:
   |------|----------------|
   | [TestName] | [reason — escalated to PO / accepted risk] |
   [None if no ignored failures]
+
+### Current Unit Test Coverage Status
+| Module | Tests | Failing | Coverage | Run date |
+|--------|-------|---------|----------|----------|
+| [module] | [tests_total] | [tests_failed] | [coverage_pct]% | [run_date] |
+
+_(One row for each module the Developer changed. Write `n/a` when `coverage_pct` is null.
+A module that did not run shows `Not run — [reason]` in the Tests column.
+The table only reports the last run. No comparison, no warning, no gate.)_
 
 ### Work Queue
 | TC ID | Test File | Method | Type | Status |

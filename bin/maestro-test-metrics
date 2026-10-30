@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# Maestro test metrics. The Developer runs it after the last commit, once for each module it changed.
+# It runs the test suite of ONE module with code coverage on and prints ONE JSON record.
+#
+#   maestro-test-metrics <repo path> --scheme <name> [--module <name>] [--project <path> | --workspace <path>]
+#                        [--destination <xcodebuild destination>] [--source developer|ci]
+#                        [--keep-bundle <dir>]
+#
+# --module   label in the record (default: the scheme name)
+# --project / --workspace   relative to the repo path. Leave both out for a Swift package.
+# --destination   default: the first available iPhone simulator
+# --keep-bundle   copy the .xcresult into this directory (default: deleted)
+#
+# stdout: the JSON record (one line). stderr: one status line. Never prints a secret.
+# Exit: 0 = ran, no failing test | 1 = ran, at least one test failed (JSON still printed)
+#       2 = Not run (build error, tool missing, result not readable). No JSON.
+# Coverage counts only source files inside the repo path (a package from another repo is its own module).
+# Coverage that cannot be read gives "coverage_pct": null. It never gives a made-up number.
+set -u
+
+notrun() { echo "test-metrics: Not run — $1" >&2; exit 2; }
+
+repo="${1:-}"; [ $# -gt 0 ] && shift
+[ -n "$repo" ] && [ -d "$repo" ] || notrun "give the repo path: maestro-test-metrics <repo path> --scheme <name>"
+repo="$(cd "$repo" && pwd)"
+
+scheme=""; module=""; project=""; workspace=""; dest=""; source_label="developer"; keep=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --scheme) scheme="${2:-}"; shift 2 ;;
+    --module) module="${2:-}"; shift 2 ;;
+    --project) project="${2:-}"; shift 2 ;;
+    --workspace) workspace="${2:-}"; shift 2 ;;
+    --destination) dest="${2:-}"; shift 2 ;;
+    --source) source_label="${2:-}"; shift 2 ;;
+    --keep-bundle) keep="${2:-}"; shift 2 ;;
+    *) notrun "unknown option: $1" ;;
+  esac
+done
+[ -n "$scheme" ] || notrun "--scheme is required"
+[ -n "$module" ] || module="$scheme"
+
+command -v xcodebuild >/dev/null 2>&1 || notrun "xcodebuild not installed"
+command -v python3 >/dev/null 2>&1 || notrun "python3 not installed"
+xcrun xcresulttool get test-results summary --help >/dev/null 2>&1 || notrun "this Xcode has no 'xcresulttool get test-results' (needs Xcode 16 or later)"
+
+if [ -z "$dest" ]; then
+  id=$(xcrun simctl list devices available 2>/dev/null | grep -i "iPhone" | grep -v unavailable | head -1 | sed 's/.*(\([0-9A-F-]\{36\}\)).*/\1/')
+  [ -n "$id" ] || notrun "no iPhone simulator found; pass --destination"
+  dest="platform=iOS Simulator,id=$id"
+fi
+
+work=$(mktemp -d "${TMPDIR:-/tmp}/maestro-metrics.XXXXXX") || notrun "cannot create a temp directory"
+trap 'rm -rf "$work"' EXIT
+bundle="$work/run.xcresult"
+
+args=(test -scheme "$scheme" -sdk iphonesimulator -destination "$dest" -enableCodeCoverage YES -resultBundlePath "$bundle")
+[ -n "$project" ] && args+=(-project "$project")
+[ -n "$workspace" ] && args+=(-workspace "$workspace")
+# A Swift package has no project: xcodebuild reads Package.swift in the working directory.
+
+start=$(python3 -I -c 'import time;print(time.time())')
+(cd "$repo" && xcodebuild "${args[@]}" >"$work/build.log" 2>&1)
+xc=$?
+end=$(python3 -I -c 'import time;print(time.time())')
+
+# A failing test also gives a non-zero exit. The bundle tells the two cases apart.
+[ -d "$bundle" ] || notrun "no result bundle ($(tail -1 "$work/build.log" | cut -c1-120))"
+xcrun xcresulttool get test-results summary --path "$bundle" --compact >"$work/summary.json" 2>/dev/null || notrun "result summary not readable"
+xcrun xcresulttool get test-results tests --path "$bundle" --compact >"$work/tests.json" 2>/dev/null || notrun "test list not readable"
+xcrun xccov view --report --json "$bundle" >"$work/coverage.json" 2>/dev/null || : >"$work/coverage.json"
+
+commit=$(git -C "$repo" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+branch=$(git -C "$repo" branch --show-current 2>/dev/null); [ -n "$branch" ] || branch="detached"
+
+record=$(python3 -I - "$work" "$module" "$scheme" "$commit" "$branch" "$source_label" "$start" "$end" "$xc" "$repo" <<'PY'
+import sys, json, datetime
+work, module, scheme, commit, branch, source, start, end, xc, repo = sys.argv[1:11]
+import os
+repo = os.path.realpath(repo) + os.sep
+try:
+    s = json.load(open(work + "/summary.json"))
+    t = json.load(open(work + "/tests.json"))
+    passed, failed = int(s["passedTests"]), int(s["failedTests"])
+    total = passed + failed
+except Exception:
+    print("PARSE_ERROR"); sys.exit(0)
+
+failed_names = []
+def walk(n):
+    if n.get("nodeType") == "Test Case" and n.get("result") == "Failed":
+        failed_names.append(n.get("nodeIdentifier") or n.get("name", "?"))
+    for c in n.get("children", []):
+        walk(c)
+for n in t.get("testNodes", []):
+    walk(n)
+if failed and not failed_names:
+    failed_names = ["(names not readable)"]
+
+coverage, targets = None, []
+try:
+    c = json.load(open(work + "/coverage.json"))
+    cov = ex = 0
+    for tg in c["targets"]:
+        name, path = tg.get("name", ""), tg.get("buildProductPath", "")
+        if name.endswith("Tests") or name.endswith(".xctest") or ".xctest" in path:
+            continue
+        # Count only code inside this repo. A package from another repo is its own module.
+        used = False
+        for f in tg.get("files", []):
+            if os.path.realpath(f.get("path", "")).startswith(repo):
+                cov += f["coveredLines"]; ex += f["executableLines"]; used = True
+        if used:
+            targets.append(name)
+    if ex > 0:
+        coverage = round(100.0 * cov / ex, 1)
+except Exception:
+    pass
+
+now = datetime.datetime.fromtimestamp(float(end), datetime.timezone.utc)
+print(json.dumps({
+    "module": module, "scheme": scheme,
+    "tests_total": total, "tests_passed": passed, "tests_failed": failed,
+    "failed_names": failed_names[:20],
+    "coverage_pct": coverage, "coverage_targets": targets,
+    "commit": commit, "branch": branch,
+    "run_date": now.strftime("%Y-%m-%d"), "run_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "duration_s": round(float(end) - float(start), 1), "source": source,
+}, separators=(",", ":")))
+PY
+)
+[ -n "$record" ] && [ "$record" != "PARSE_ERROR" ] || notrun "result not parsed"
+
+if [ -n "$keep" ]; then
+  mkdir -p "$keep" && cp -R "$bundle" "$keep/${module}.xcresult" 2>/dev/null
+fi
+
+failed=$(printf '%s' "$record" | python3 -I -c 'import sys,json;print(json.load(sys.stdin)["tests_failed"])')
+total=$(printf '%s' "$record" | python3 -I -c 'import sys,json;print(json.load(sys.stdin)["tests_total"])')
+cov=$(printf '%s' "$record" | python3 -I -c 'import sys,json;c=json.load(sys.stdin)["coverage_pct"];print("n/a" if c is None else str(c)+"%")')
+[ "$total" -gt 0 ] || notrun "no test ran for $module (xcodebuild exit $xc)"
+printf '%s\n' "$record"
+if [ "$failed" -gt 0 ]; then
+  echo "test-metrics: $module — $failed of $total failed, coverage $cov" >&2; exit 1
+else
+  echo "test-metrics: $module — $total passed, coverage $cov" >&2; exit 0
+fi
