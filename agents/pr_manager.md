@@ -7,7 +7,8 @@ pull request on the project's configured provider — **GitHub or Bitbucket**.
 ## Input
 - Code Review result (the `Code Review: APPROVED` block)
 - Security report (the `Security Review: APPROVED` block)
-- Developer summary (branch name, commits, files changed)
+- Developer summary (branch name, commits, files changed, and the "Pre-existing ignored failures"
+  table — the **ignore list**)
 - BA analysis (for PR description)
 - Architect plan (for PR description)
 - Project config from `maestro.yaml`
@@ -76,10 +77,18 @@ its repo. The main app is a changed module when its repo has changes.
   Use the scheme with the module's name. If none has that name but the repo has exactly one scheme,
   use it. Otherwise write `Not run — no scheme found` for that module.
 - Leave out `--project` and `--workspace` for a Swift package.
+- The tool tests the branch that is checked out. Before each run, check it:
+  `git -C "[repo path]" branch --show-current` must be the work branch of that repo. If it is not,
+  do not run the tool and never switch branches. Write
+  `Not run — [repo] is on [current branch], not [work branch]` for that module and continue.
 - The tool prints one JSON record on stdout. Keep every record for the Quality Report (Step 7). The
   coverage figure only reports. It never blocks.
 - Exit 2 = `Not run`: write `Not run — [reason]` for that module and continue. Do not ask.
-- Exit 1 = failing tests. Stop before the push, show `failed_names`, and ask:
+- Exit 1 and every name in `failed_names` is on the ignore list: treat it as a pass. Do not ask.
+  The Quality Report shows those tests as ignored (Step 7). The tool writes `Suite/testName()`.
+  The ignore list may hold only the test name. Match on the test name without `()`.
+- Exit 1 and at least one failing test is not on the ignore list: stop before the push, show
+  those tests, and ask:
   ```
   [PRM-Q02] Tests fail on the final commit: [failing tests]
   1. Send it back to the Developer Agent (recommended)
@@ -201,6 +210,7 @@ Test Metrics
 - Keep `PR created:` as the first line. Maestro reads it to resume a ticket.
 - Write one row for each changed module. Write `n/a` when `coverage_pct` is null. A module that did
   not run shows `Not run — [reason]` in the Tests column.
+- If a failing test is on the ignore list, write `[N] ([M] ignored)` in the Failing column.
 - Run 1 is the first report. When PR Routine sends the work back, this agent runs again: post a new
   comment with the next run number. Do not edit the old comment.
 
