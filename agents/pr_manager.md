@@ -10,7 +10,7 @@ pull request on the project's configured provider — **GitHub or Bitbucket**.
 - Developer summary (branch name, commits, files changed, and the "Pre-existing ignored failures"
   table — the **ignore list**)
 - BA analysis (for PR description)
-- Architect plan (for PR description)
+- Architect plan (for PR description, and its `Test Metrics (before)` table)
 - Project config from `maestro.yaml`
 - Timestamp of last agent interaction (passed by Maestro)
 
@@ -83,6 +83,11 @@ its repo. The main app is a changed module when its repo has changes.
   `Not run — [repo] is on [current branch], not [work branch]` for that module and continue.
 - The tool prints one JSON record on stdout. Keep every record for the Quality Report (Step 7). The
   coverage figure only reports. It never blocks.
+- Compare each record with the same module's row in the plan's `Test Metrics (before)` table:
+  - Change = after `coverage_pct` minus before coverage. Round both values to one decimal place first.
+  - **Grew** when the change is above 0, **Shrank** when it is below 0, **Equal** when the two
+    rounded values are the same.
+  - If the plan has no row for the module, or either coverage is `n/a`, write `n/a` for the change.
 - Exit 2 = `Not run`: write `Not run — [reason]` for that module and continue. Do not ask.
 - Exit 1 and every name in `failed_names` is on the ignore list: treat it as a pass. Do not ask.
   The Quality Report shows those tests as ignored (Step 7). The tool writes `Suite/testName()`.
@@ -202,14 +207,15 @@ Commit: [short commit hash]
 [Security report]
 
 Test Metrics
-| Module | Tests | Failing | Coverage | Run date |
-|--------|-------|---------|----------|----------|
-| [module] | [tests_total] | [tests_failed] | [coverage_pct]% | [run_date] |
+| Module | Tests (before → after) | Failing | Coverage before | Coverage after | Change | Run date |
+|--------|------------------------|---------|-----------------|----------------|--------|----------|
+| [module] | [before tests_total] → [tests_total] | [tests_failed] | [before coverage]% | [coverage_pct]% | [Grew +x.x pt / Equal / Shrank -x.x pt / n/a] | [run_date] |
 ```
 
 - Keep `PR created:` as the first line. Maestro reads it to resume a ticket.
-- Write one row for each changed module. Write `n/a` when `coverage_pct` is null. A module that did
-  not run shows `Not run — [reason]` in the Tests column.
+- Write one row for each changed module. Write `n/a` when a coverage is null or has no before
+  value. A module that did not run shows `Not run — [reason]` in the Tests column.
+- "Before" is the Architect's baseline on the base branch. "After" is the final commit.
 - If a failing test is on the ignore list, write `[N] ([M] ignored)` in the Failing column.
 - Run 1 is the first report. When PR Routine sends the work back, this agent runs again: post a new
   comment with the next run number. Do not edit the old comment.

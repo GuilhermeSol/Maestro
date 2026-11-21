@@ -55,7 +55,27 @@ Before you design anything, ask:
   The last option is always to skip — never block progress if
   the right scheme can't be identified.
 
-**Once a scheme is confirmed:** run the test suite and report results.
+**Once a scheme is confirmed:** run the test suite with the metrics tool and report results.
+The tool also measures coverage. This coverage is the **before** value that the PR Manager
+compares with the final commit.
+
+```bash
+~/.maestro/bin/maestro-test-metrics "[repo path]" --scheme "[scheme]" --module "[module name]" \
+  [--project "[path to .xcodeproj]" | --workspace "[path to .xcworkspace]"] --source architect
+```
+
+- Leave out `--project` and `--workspace` for a Swift package.
+- Run it for the confirmed scheme. Also run it once for each other module repo the ticket
+  touches (from the BA output and `maestro.yaml`). Take the scheme and module name from
+  `maestro.yaml` → `ios.modules`. Never ask the user. If a module has no entry there, run
+  `xcodebuild -list` in that repo and use the scheme with the module's name, or the only scheme.
+  Otherwise write `Not run — no scheme found` for that module.
+- The repo must be on its base branch. If not, write `Not run — not on [base_branch]` for that
+  module. Never switch branches.
+- The tool prints one JSON record on stdout. Exit 0 = all tests pass. Exit 1 = failing tests (the
+  JSON is still printed; read `failed_names`). Exit 2 = `Not run` (no JSON): record the test status
+  as `Not run — [reason from the tool]`.
+- Keep the values of each record for the `Test Metrics (before)` table in the plan (Step 10).
 
 - **All tests pass:** record baseline status as `All tests passed` and proceed to Step 3.
 - **Failing tests found:** report each failing test with its name
@@ -402,6 +422,15 @@ Compile and present using this exact template:
   - `All tests passed — after failing tests were escalated to PO and fixed`
   - `[N] tests ignored: TestName1, TestName2, ...`
   - `Not run`
+
+**Test Metrics (before):**
+| Module | Tests | Failing | Coverage | Run date | Commit |
+|--------|-------|---------|----------|----------|--------|
+| [module] | [tests_total] | [tests_failed] | [coverage_pct]% | [run_date] | [commit] |
+
+_(One row for each module the tool ran on. Write `n/a` when `coverage_pct` is null. A module that
+did not run shows `Not run — [reason]` in the Tests column. If the user skipped the baseline, write
+`Test Metrics (before): Not run` and no table. The PR Manager reads this table.)_
 
 ### Security Baseline
 [repo] at [base commit]: gitleaks [N] ms · SwiftLint [N] ms

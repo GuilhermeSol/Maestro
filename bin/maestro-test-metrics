@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Maestro test metrics. The PR Manager runs it before the push, once for each changed module.
+# Maestro test metrics. The Architect runs it on the base branch (before), and the PR Manager runs it
+# on the final commit (after), once for each module.
 # It runs the test suite of ONE module with code coverage on and prints ONE JSON record.
 #
 #   maestro-test-metrics <repo path> --scheme <name> [--module <name>] [--project <path> | --workspace <path>]
-#                        [--destination <xcodebuild destination>] [--source pr-manager|ci]
+#                        [--destination <xcodebuild destination>] [--source architect|pr-manager|ci]
 #                        [--keep-bundle <dir>]
 #
 # --module   label in the record (default: the scheme name)

@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Maestro Workflow</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -84,11 +85,11 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
 <main>
   <header>
     <h1>Maestro: from a Jira ticket to a merged pull request</h1>
-    <p class="sub">Seven agents run in order. You approve every step. If review or security finds problems, the work goes back to the Developer.</p>
+    <p class="sub">Seven agents run in order. You approve every step. If review, security or a failing test finds problems, the work goes back to the Developer.</p>
   </header>
 
   <div class="scroll">
-  <svg viewBox="0 0 1170 756" role="img" aria-label="Maestro pipeline of seven agents with the TDD loop, the security checks and the PR Routine monitors drawn as sub-flows under their stages.">
+  <svg viewBox="0 0 1330 780" role="img" aria-label="Maestro pipeline of seven agents. Sub-flows under the stages show the assignee check, the Architect baseline, the TDD loop, the security checks, the PR Manager test metrics and Quality Report, and the PR Routine monitors.">
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path d="M1 1 L9 5 L1 9" fill="none" stroke="context-stroke" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -98,7 +99,10 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <!-- start command -->
     <rect class="cmd-box" x="20" y="18" width="190" height="34" rx="6"/>
     <text class="cmd" x="115" y="40" text-anchor="middle">/maestro TICKET-ID</text>
-    <path class="arrow" d="M87 52 V138" marker-end="url(#ah)" style="stroke:var(--accent)"/>
+    <path class="arrow" d="M87 52 V68" marker-end="url(#ah)" style="stroke:var(--accent)"/>
+    <rect class="step" x="20" y="68" width="134" height="34" rx="6"/>
+    <text class="st" x="87" y="89" text-anchor="middle">Check the assignee</text>
+    <path class="arrow" d="M87 102 V138" marker-end="url(#ah)" style="stroke:var(--accent)"/>
 
     <!-- main row -->
     <g>
@@ -126,9 +130,9 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
       <text class="node-title" x="917" y="172" text-anchor="middle">6 · PR Manager</text>
       <text class="node-role" x="917" y="194" text-anchor="middle">opens the PR</text>
 
-      <rect class="node" x="1016" y="140" width="134" height="84" rx="8"/>
-      <text class="node-title" x="1083" y="172" text-anchor="middle">7 · PR Routine</text>
-      <text class="node-role" x="1083" y="194" text-anchor="middle">tracks it to merge</text>
+      <rect class="node" x="1176" y="140" width="134" height="84" rx="8"/>
+      <text class="node-title" x="1243" y="172" text-anchor="middle">7 · PR Routine</text>
+      <text class="node-role" x="1243" y="194" text-anchor="middle">tracks it to merge</text>
     </g>
 
     <!-- Jira status chips -->
@@ -136,11 +140,11 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <text class="chip-text" x="419" y="116" text-anchor="middle">→ In Progress</text>
     <rect class="chip" x="862" y="100" width="110" height="24" rx="12"/>
     <text class="chip-text" x="917" y="116" text-anchor="middle">→ In Review</text>
-    <rect class="chip" x="1028" y="100" width="110" height="24" rx="12"/>
-    <text class="chip-text" x="1083" y="116" text-anchor="middle">→ QA</text>
+    <rect class="chip" x="1188" y="100" width="110" height="24" rx="12"/>
+    <text class="chip-text" x="1243" y="116" text-anchor="middle">→ QA</text>
     <path class="arrow" d="M419 124 V140" style="stroke-dasharray:3 3"/>
     <path class="arrow" d="M917 124 V140" style="stroke-dasharray:3 3"/>
-    <path class="arrow" d="M1083 124 V140" style="stroke-dasharray:3 3"/>
+    <path class="arrow" d="M1243 124 V140" style="stroke-dasharray:3 3"/>
 
     <!-- arrows between nodes with approval gates -->
     <g>
@@ -154,8 +158,8 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
       <circle class="gate" cx="668" cy="182" r="9"/><path class="gate-mark" d="M664 182 L667 185 L672 179"/>
       <path class="arrow" d="M818 182 H832"/><path class="arrow" d="M836 182 H850" marker-end="url(#ah)"/>
       <circle class="gate" cx="834" cy="182" r="9"/><path class="gate-mark" d="M830 182 L833 185 L838 179"/>
-      <path class="arrow" d="M984 182 H998"/><path class="arrow" d="M1002 182 H1016" marker-end="url(#ah)"/>
-      <circle class="gate" cx="1000" cy="182" r="9"/><path class="gate-mark" d="M996 182 L999 185 L1004 179"/>
+      <path class="arrow" d="M984 182 H1078"/><path class="arrow" d="M1082 182 H1176" marker-end="url(#ah)"/>
+      <circle class="gate" cx="1080" cy="182" r="9"/><path class="gate-mark" d="M1076 182 L1079 185 L1084 179"/>
     </g>
 
     <!-- loop-back (nested so the lines never cross) -->
@@ -163,27 +167,32 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <path class="loop" d="M751 224 V264 H455 V226" marker-end="url(#ah)"/>
     <text class="loop-text" x="592" y="240">issues</text>
     <text class="loop-text" x="500" y="288">issues found: back to the Developer</text>
-    <text class="loop-text" x="500" y="305">then review runs again</text>
+    <text class="loop-text" x="500" y="305">then review runs again,</text>
+    <text class="loop-text" x="500" y="322">up to the loop-back limit</text>
 
     <!-- BA, Review, PR Manager notes -->
     <text class="note" x="87" y="254" text-anchor="middle">Acceptance criteria</text>
     <text class="note" x="87" y="271" text-anchor="middle">and test cases</text>
-    <text class="note" x="917" y="254" text-anchor="middle">You approve the push.</text>
-    <text class="note" x="917" y="271" text-anchor="middle">Opens the PR on GitHub</text>
-    <text class="note" x="917" y="288" text-anchor="middle">or Bitbucket.</text>
+    <text class="note" x="900" y="254" text-anchor="middle">You approve</text>
+    <text class="note" x="900" y="271" text-anchor="middle">the push.</text>
 
     <!-- ARCHITECT sub-flow (x 190..310) -->
     <path class="flow" d="M253 224 V300" marker-end="url(#ah)"/>
     <rect class="step" x="190" y="300" width="120" height="40" rx="6"/>
-    <text class="st" x="250" y="318" text-anchor="middle">CI gate check</text>
-    <text class="st" x="250" y="332" text-anchor="middle" style="fill:var(--muted)">is a pipeline set up?</text>
+    <text class="st" x="250" y="317" text-anchor="middle">Baseline tests</text>
+    <text class="st" x="250" y="331" text-anchor="middle" style="fill:var(--muted)">coverage before</text>
     <path class="flow" d="M250 340 V356" marker-end="url(#ah)"/>
-    <rect class="step" x="190" y="356" width="120" height="40" rx="6"/>
-    <text class="st" x="250" y="380" text-anchor="middle">Baseline tests</text>
+    <rect class="step sec" x="190" y="356" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="373" text-anchor="middle">Baseline security</text>
+    <text class="st" x="250" y="387" text-anchor="middle">scan, base branch</text>
     <path class="flow" d="M250 396 V412" marker-end="url(#ah)"/>
-    <rect class="step sec" x="190" y="412" width="120" height="40" rx="6"/>
-    <text class="st" x="250" y="428" text-anchor="middle">Baseline security</text>
-    <text class="st" x="250" y="443" text-anchor="middle">scan, base branch</text>
+    <rect class="step" x="190" y="412" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="429" text-anchor="middle">Decisions, strategy,</text>
+    <text class="st" x="250" y="443" text-anchor="middle">file surface</text>
+    <path class="flow" d="M250 452 V468" marker-end="url(#ah)"/>
+    <rect class="step" x="190" y="468" width="120" height="40" rx="6"/>
+    <text class="st" x="250" y="485" text-anchor="middle">CI gate check</text>
+    <text class="st" x="250" y="499" text-anchor="middle" style="fill:var(--muted)">meets the policy?</text>
 
     <!-- DEVELOPER TDD sub-flow (x 344..494) -->
     <path class="flow" d="M385 224 V300" marker-end="url(#ah)"/>
@@ -221,6 +230,7 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <text class="note" x="585" y="356" text-anchor="middle">Reads the diff.</text>
     <text class="note" x="585" y="373" text-anchor="middle">Approves, or lists</text>
     <text class="note" x="585" y="390" text-anchor="middle">the issues.</text>
+    <text class="note" x="585" y="407" text-anchor="middle">Passes the result on.</text>
 
     <!-- SECURITY sub-flow (x 681..821) -->
     <path class="flow" d="M790 224 V300" marker-end="url(#ah)"/>
@@ -238,18 +248,43 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <path class="flow" d="M751 452 V468" marker-end="url(#ah)"/>
     <path class="dec sec" d="M751 468 L821 496 L751 524 L681 496 Z"/>
     <text class="st s11" x="751" y="500" text-anchor="middle">Secret found?</text>
-    <path class="flow" d="M821 496 H845" marker-end="url(#ah)"/>
-    <text class="lbl" x="826" y="488">yes</text>
-    <rect class="step red" x="845" y="476" width="140" height="40" rx="6"/>
-    <text class="st" x="915" y="493" text-anchor="middle">Breach report posted</text>
-    <text class="st" x="915" y="507" text-anchor="middle">to Jira at once</text>
+    <path class="flow" d="M681 496 H650" marker-end="url(#ah)"/>
+    <text class="lbl" x="666" y="488" text-anchor="middle">yes</text>
+    <rect class="step red" x="520" y="476" width="130" height="40" rx="6"/>
+    <text class="st" x="585" y="493" text-anchor="middle">Breach report</text>
+    <text class="st" x="585" y="507" text-anchor="middle">posted at once</text>
     <path class="flow" d="M751 524 V548" marker-end="url(#ah)"/>
     <text class="lbl" x="759" y="540">no</text>
     <rect class="step" x="681" y="548" width="140" height="40" rx="6"/>
     <text class="st" x="751" y="565" text-anchor="middle">You decide each</text>
     <text class="st" x="751" y="579" text-anchor="middle">finding</text>
+    <path class="flow" d="M751 588 V604" marker-end="url(#ah)"/>
+    <rect class="step" x="681" y="604" width="140" height="40" rx="6"/>
+    <text class="st" x="751" y="621" text-anchor="middle">Report goes to</text>
+    <text class="st" x="751" y="635" text-anchor="middle">the PR Manager</text>
 
-    <!-- PR ROUTINE sub-flow (x 1016..1150) -->
+    <!-- PR MANAGER sub-flow (x 850..984) -->
+    <path class="flow" d="M960 224 V300" marker-end="url(#ah)"/>
+    <rect class="step ok" x="850" y="300" width="134" height="56" rx="6"/>
+    <text class="st s11" x="917" y="318" text-anchor="middle">Coverage after, on the</text>
+    <text class="st s11" x="917" y="332" text-anchor="middle">final commit. Compare</text>
+    <text class="st s11" x="917" y="346" text-anchor="middle">with before</text>
+    <path class="flow" d="M917 356 V372" marker-end="url(#ah)"/>
+    <rect class="step red" x="850" y="372" width="134" height="40" rx="6"/>
+    <text class="st s11" x="917" y="389" text-anchor="middle">New failing test:</text>
+    <text class="st s11" x="917" y="403" text-anchor="middle">you may send it back</text>
+    <path class="flow" d="M917 412 V428" marker-end="url(#ah)"/>
+    <rect class="step" x="850" y="428" width="134" height="40" rx="6"/>
+    <text class="st" x="917" y="445" text-anchor="middle">Push, open the PR</text>
+    <text class="st" x="917" y="459" text-anchor="middle" style="fill:var(--muted)">GitHub or Bitbucket</text>
+    <path class="flow" d="M917 468 V484" marker-end="url(#ah)"/>
+    <rect class="step" x="850" y="484" width="134" height="56" rx="6"/>
+    <text class="st s11" x="917" y="502" text-anchor="middle">Quality Report to Jira:</text>
+    <text class="st s11" x="917" y="516" text-anchor="middle">review, security,</text>
+    <text class="st s11" x="917" y="530" text-anchor="middle">coverage change</text>
+
+    <g transform="translate(160 0)">
+    <!-- PR ROUTINE sub-flow (x 1176..1310 after the shift) -->
     <path class="flow" d="M1083 224 V300" marker-end="url(#ah)"/>
     <rect class="step ok" x="1016" y="300" width="134" height="40" rx="6"/>
     <text class="st" x="1083" y="317" text-anchor="middle">PR Monitor:</text>
@@ -259,9 +294,10 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <text class="st s11" x="1083" y="396" text-anchor="middle">PR merged?</text>
     <path class="flow" d="M1016 392 H990" marker-end="url(#ah)"/>
     <text class="lbl" x="1012" y="384" text-anchor="end">no</text>
-    <rect class="step" x="850" y="372" width="134" height="40" rx="6"/>
-    <text class="st" x="917" y="389" text-anchor="middle">Changes requested:</text>
-    <text class="st" x="917" y="403" text-anchor="middle">rework flow</text>
+    <rect class="step" x="850" y="364" width="134" height="56" rx="6"/>
+    <text class="st s11" x="917" y="382" text-anchor="middle">Changes requested:</text>
+    <text class="st s11" x="917" y="396" text-anchor="middle">rework. Review, security,</text>
+    <text class="st s11" x="917" y="410" text-anchor="middle">PR Manager run again</text>
     <path class="flow" d="M1083 420 V450" marker-end="url(#ah)"/>
     <text class="lbl" x="1091" y="440">yes</text>
     <rect class="step ok" x="1016" y="450" width="134" height="40" rx="6"/>
@@ -281,7 +317,10 @@ svg { display: block; min-width: 1000px; width: 100%; height: auto; }
     <text class="st" x="1083" y="631" text-anchor="middle">Ticket moves to QA</text>
     <text class="st" x="1083" y="645" text-anchor="middle">by itself</text>
 
-    <text class="note" x="20" y="736" style="font-size:13px">Every agent posts its result as a Jira comment. Maestro reads those comments to resume a ticket where it stopped.</text>
+    </g>
+
+    <text class="note" x="20" y="740" style="font-size:13px">BA, Architect and Developer post their results as Jira comments. The PR Manager posts one Quality Report: review, security, and coverage before and after.</text>
+    <text class="note" x="20" y="760" style="font-size:13px">Only a secret breach is posted at once. Maestro reads these comments to resume a ticket where it stopped.</text>
   </svg>
   </div>
 

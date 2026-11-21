@@ -38,7 +38,7 @@ def answer_col(a, t):
 # Automatic decisions: the agent decides from a result. It asks the user nothing.
 DEC = {"mae": {"state", "assignee", "run"}, "ba": {"clear", "pathb"}, "arc": {"result", "pattern", "ci"},
        "dev": {"tree", "unexp", "outcome", "more", "kind"}, "rev": {"verdict"}, "sec": {"breach", "verdict"},
-       "prm": {"exit"}, "rtn": {"state", "draft", "decision", "event", "result"}}
+       "prm": {"onbranch", "exit"}, "rtn": {"state", "draft", "decision", "event", "result"}}
 
 
 def box_size(kind, text):
