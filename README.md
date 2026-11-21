@@ -36,14 +36,33 @@ Maestro automates the routine steps of an iOS ticket and keeps you in control of
 | # | Agent | What it does |
 |---|-------|--------------|
 | 1 | **BA** | Reads the ticket and writes acceptance criteria and test cases |
-| 2 | **Architect** | Confirms the base branch, plans the work, runs a baseline security scan |
+| 2 | **Architect** | Confirms the base branch, runs the baseline tests and coverage, runs a baseline security scan, and plans the work |
 | 3 | **Developer** | Writes the code test-first (RED, GREEN, REFACTOR), one commit at a time |
 | 4 | **Code Review** | Reads the diff, then approves it or lists the issues |
 | 5 | **Security** | Scans the ticket's commits with gitleaks and SwiftLint and compares with the baseline |
-| 6 | **PR Manager** | Pushes the branch and opens the pull request |
+| 6 | **PR Manager** | Measures coverage on the final commit, pushes the branch, opens the pull request, and posts one Quality Report to Jira |
 | 7 | **PR Routine** | Watches the pull request, checks the build after the merge, and moves the ticket to QA |
 
-If Code Review or Security finds problems, the work goes back to the Developer, and both checks run again.
+If Code Review, Security or a failing test finds problems, the work goes back to the Developer, and the checks run again. After `agent.loop_back_limit` loop-backs (in `maestro.yaml`), Maestro stops and waits for you.
+
+The chart above is the overview. For every question and answer of every agent, open the star map, [`docs/flow-map/index.html`](docs/flow-map/index.html), in a browser.
+
+### Quality Report and test coverage
+
+Code Review and Security do not post to Jira themselves (except a secret breach, which Security posts at once). The PR Manager collects their results and posts **one Quality Report** on the ticket, with:
+
+- the Code Review result
+- the Security report
+- the test metrics for each module the ticket changed: tests, failing tests, line coverage, and the coverage change
+
+The coverage change compares two runs of `bin/maestro-test-metrics`:
+
+- **Before:** the Architect's baseline run on the base branch, recorded in the plan.
+- **After:** the PR Manager's run on the final commit, just before the push.
+
+The report says if coverage **grew**, stayed **equal**, or **shrank**, and by how many points. Coverage only counts source files inside the module's repo, and never test targets. It informs you. It never blocks the pipeline.
+
+If the work goes back for rework, the PR Manager posts a new Quality Report with the next run number. The old reports stay, so the ticket keeps the history.
 
 ## Install
 
@@ -103,7 +122,7 @@ The installer sets up:
 /maestro <TICKET-ID>
 ```
 
-Maestro finds how far the ticket has already got by reading its Jira comments, and carries on from there. You can also run one agent on its own, for example `/developer` or `/review`.
+Maestro finds how far the ticket has already got by reading its Jira comments, and carries on from there. Before any agent starts, it checks the ticket's assignee, so two people do not work on one ticket. You can also run one agent on its own, for example `/developer` or `/review`.
 
 ## Update
 
